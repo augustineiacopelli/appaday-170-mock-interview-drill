@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="manifest" href="https://augustineiacopelli.github.io/appaday/manifests/170.webmanifest">
 <script src="https://augustineiacopelli.github.io/appaday/save.js" defer></script>
+<script src="https://augustineiacopelli.github.io/appaday/keys.js" data-app="170" data-legacy-key="appaday-170-settings:apiKey" data-accent="#1F7A8C" defer></script>
 <title>Mock Interview Drill | AppADay 170</title>
 <meta name="description" content="Paste a job description and Claude drafts likely behavioral and technical interview questions, each with a practice timer, notes, and a practiced toggle.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -154,13 +155,8 @@ footer a:hover{color:var(--accent-hi)}
 .modal{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;max-height:calc(100dvh - 32px);overflow:auto}
 .modal h2{margin:0 0 6px;font-family:var(--head);font-size:1.25rem}
 .modal p{margin:0 0 12px;color:var(--muted);font-size:.93rem}
-.field{display:flex;gap:8px}
-.field input{flex:1;min-width:0;min-height:44px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:0 12px;font-family:var(--mono);font-size:.9rem}
-.field input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 .mrow{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
 .mnote{font-size:.82rem;color:var(--muted);margin-top:12px}
-.keystate{font-size:.85rem;margin-top:8px;color:var(--muted)}
-.keystate.ok{color:var(--ok)}
 
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#E8F1F2;color:#0D1416;font-weight:600;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;max-width:calc(100vw - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -204,7 +200,7 @@ footer a:hover{color:var(--accent-hi)}
     <p class="done-msg" id="doneMsg">Every question practiced. Walk in ready.</p>
   </section>
 
-  <div class="empty" id="emptyState"><strong>No questions yet</strong>Add your Claude API key with the gear, paste a posting, and generate a set of 8 to 10 questions.</div>
+  <div class="empty" id="emptyState"><strong>No questions yet</strong>Paste a posting and generate a set of 8 to 10 questions. The first time, you will connect your Claude API key or restore it from your key file.</div>
 
   <section class="section" id="behSec" hidden aria-labelledby="behH">
     <div class="sec-h"><h2 id="behH">Behavioral</h2><span id="behCount">0 of 0</span></div>
@@ -232,18 +228,10 @@ footer a:hover{color:var(--accent-hi)}
 <div class="scrim" id="settingsScrim">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle" id="settingsModal">
     <h2 id="setTitle">Settings</h2>
-    <p>Mock Interview Drill calls Claude with your own Anthropic API key. Get one at <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
-    <label class="sr" for="keyInput">Anthropic API key</label>
-    <div class="field">
-      <input id="keyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
-      <button class="btn" id="showKeyBtn" type="button" aria-pressed="false">Show</button>
-    </div>
-    <div class="keystate" id="keyState">No key saved.</div>
-    <p class="mnote">The key is stored only in this browser and is sent only to api.anthropic.com. The model is read from the AppADay config file.</p>
+    <p>Mock Interview Drill calls Claude with your own Anthropic API key. The model is read from the AppADay config file.</p>
+    <div id="keyMount"><p class="mnote">The key manager is loading. If this stays, check your connection and reload.</p></div>
     <div class="mrow">
-      <button class="btn danger" id="clearKeyBtn" type="button">Clear key</button>
       <button class="btn" id="closeSetBtn" type="button">Close</button>
-      <button class="btn primary" id="saveKeyBtn" type="button">Save</button>
     </div>
   </div>
 </div>
@@ -267,7 +255,6 @@ footer a:hover{color:var(--accent-hi)}
 
 var CONFIG_URL = 'https://augustineiacopelli.github.io/appaday/config.json';
 var STATE_KEY = 'appaday-170-state';
-var SETTINGS_KEY = 'appaday-170-settings';
 var JD_MIN = 80;
 var JD_MAX = 12000;
 var MIN_VALID = 6;
@@ -293,7 +280,9 @@ async function getModel(tier) {
 /* ---------- Claude call with thinking fallback ---------- */
 var THINKING_OPTIONS = [{ type: 'between_tools' }, { type: 'disabled' }, null];
 var thinkingFor = {};
-async function callClaude(model, prompt, apiKey) {
+async function callClaude(model, prompt) {
+  var apiKey = window.AppKeys ? await window.AppKeys.get() : null;
+  if (!apiKey) return null;
   var start = thinkingFor[model] != null ? thinkingFor[model] : 0;
   var lastErr = null;
   for (var i = start; i < THINKING_OPTIONS.length; i++) {
@@ -390,7 +379,6 @@ function parseQuestions(text) {
 
 /* ---------- storage ---------- */
 var state = { jd: '', generatedAt: '', questions: [] };
-var settings = { apiKey: '' };
 function loadState() {
   try {
     var s = JSON.parse(localStorage.getItem(STATE_KEY) || 'null');
@@ -406,16 +394,9 @@ function loadState() {
       }) : [];
     }
   } catch (e) { /* storage unavailable */ }
-  try {
-    var st = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
-    if (st && typeof st.apiKey === 'string') settings.apiKey = st.apiKey;
-  } catch (e2) { /* storage unavailable */ }
 }
 function saveState() {
   try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
-}
-function saveSettings() {
-  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ }
 }
 
 /* ---------- toast ---------- */
@@ -484,39 +465,14 @@ $('cfCancel').addEventListener('click', function () { finishConfirm(false); });
 $('confirmScrim').addEventListener('click', function (e) { if (e.target === $('confirmScrim')) finishConfirm(false); });
 
 /* ---------- settings ---------- */
-function refreshKeyState() {
-  var ks = $('keyState');
-  if (settings.apiKey) { ks.textContent = 'Key saved, ending in ' + settings.apiKey.slice(-4) + '.'; ks.className = 'keystate ok'; }
-  else { ks.textContent = 'No key saved.'; ks.className = 'keystate'; }
-}
 function openSettings() {
-  $('keyInput').value = settings.apiKey;
-  $('keyInput').type = 'password';
-  $('showKeyBtn').textContent = 'Show';
-  $('showKeyBtn').setAttribute('aria-pressed', 'false');
-  refreshKeyState();
-  openModal($('settingsScrim'), $('keyInput'), closeSettings);
+  if (window.AppKeys) window.AppKeys.mountSettings($('keyMount'));
+  openModal($('settingsScrim'), null, closeSettings);
 }
 function closeSettings() { closeModal($('settingsScrim')); }
 $('gearBtn').addEventListener('click', openSettings);
 $('closeSetBtn').addEventListener('click', closeSettings);
 $('settingsScrim').addEventListener('click', function (e) { if (e.target === $('settingsScrim')) closeSettings(); });
-$('showKeyBtn').addEventListener('click', function () {
-  var inp = $('keyInput'), show = inp.type === 'password';
-  inp.type = show ? 'text' : 'password';
-  this.textContent = show ? 'Hide' : 'Show';
-  this.setAttribute('aria-pressed', show ? 'true' : 'false');
-});
-$('saveKeyBtn').addEventListener('click', function () {
-  var v = $('keyInput').value.trim();
-  if (!v) { toast('Paste a key first, or use Clear key.'); return; }
-  settings.apiKey = v; saveSettings(); refreshKeyState();
-  closeSettings(); toast('API key saved in this browser.');
-});
-$('clearKeyBtn').addEventListener('click', function () {
-  settings.apiKey = ''; saveSettings();
-  $('keyInput').value = ''; refreshKeyState(); toast('API key cleared.');
-});
 
 /* ---------- job description input ---------- */
 var jdTimer = null;
@@ -551,7 +507,8 @@ async function generate() {
   if (generating) return;
   var jd = $('jd').value.trim();
   if (jd.length < JD_MIN) { setStatus('Paste at least ' + JD_MIN + ' characters of the posting.', true); return; }
-  if (!settings.apiKey) { setStatus('Add your Anthropic API key in Settings first.', true); openSettings(); return; }
+  if (!window.AppKeys) { setStatus('The key manager did not load. Check your connection and reload.', true); return; }
+  if (!(await window.AppKeys.get())) { setStatus('Add your Claude API key with the gear button to generate questions.'); return; }
   if (state.questions.length) {
     var ok = await askConfirm({ title: 'Replace these questions?', body: 'Generating again replaces your ' + state.questions.length + ' questions along with their notes and practice progress.', ok: 'Replace', danger: true });
     if (!ok) return;
@@ -562,7 +519,8 @@ async function generate() {
     var model = await getModel('sonnet');
     var best = [];
     for (var attempt = 0; attempt < 2; attempt++) {
-      var j = await callClaude(model, buildPrompt(jd, attempt > 0), settings.apiKey);
+      var j = await callClaude(model, buildPrompt(jd, attempt > 0));
+      if (!j) { setStatus('Add your Claude API key with the gear button to generate questions.'); return; }
       var qs = parseQuestions(replyText(j));
       if (qs.length > best.length) best = qs;
       if (best.length >= MIN_VALID) break;
@@ -869,7 +827,9 @@ loadState();
 $('jd').value = state.jd;
 refreshJd();
 render();
-if (!settings.apiKey && !state.questions.length) setStatus('Tip: add your API key with the gear button first.');
+document.addEventListener('DOMContentLoaded', function () {
+  if (window.AppKeys && !window.AppKeys.has() && !state.questions.length) setStatus('Tip: connect your Claude API key with the gear button, or just generate and you will be asked.');
+});
 })();
 </script>
 </body>

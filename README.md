@@ -6,7 +6,7 @@ Paste any job description and Claude drafts 8 to 10 likely interview questions s
 
 ## How to use it
 
-**Add your key.** Tap the gear in the header and paste your Anthropic API key. You can show or hide it while typing and clear it at any time. Get a key at [console.anthropic.com](https://console.anthropic.com/).
+**Connect your key.** The first time you generate, a sheet slides up offering to restore your keys from your AppADay key file or to enter a key. You can also do this any time from the gear in the header, which shows whether this app uses its own key or your default key (last four characters only) and lets you enter a key, restore from or back up to your key file, or forget a key. Keys are checked with Anthropic before they are saved. Get a key at [console.anthropic.com](https://console.anthropic.com/).
 
 **Paste the posting.** Drop the full job description into the input card (at least 80 characters, up to 12,000) and tap Generate Questions. Claude returns behavioral questions to answer with the STAR method and technical questions tied to the tools and skills in the posting, each with a note on what the interviewer is listening for.
 
@@ -14,9 +14,13 @@ Paste any job description and Claude drafts 8 to 10 likely interview questions s
 
 **Export.** Copy Markdown puts your full prep sheet on the clipboard, and Download .md saves it as mock-interview-drill-YYYY-MM-DD.md with each question, its suggested length, practiced status, and your notes. Reset clears the posting, questions, notes, and progress but keeps your API key. Generating again asks before replacing your current set.
 
+## API key
+
+Key handling comes from the shared AppADay key ring, [keys.js](https://augustineiacopelli.github.io/appaday/keys.js), described in KEYS.md in the portal repo. The key lives under appaday.key.170 with a fallback to your default key, and can be backed up to a passphrase encrypted file, appaday-keys.json, that restores every AppADay app's key at once. A key saved by an earlier version of this app is carried over automatically.
+
 ## Privacy
 
-Your API key, the posting, and your notes are stored only in this browser's localStorage. The posting is sent directly from your browser to api.anthropic.com and nowhere else.
+Your API key, the posting, and your notes are stored only in this browser's localStorage. The key and the posting are sent directly from your browser to api.anthropic.com and nowhere else. The key file's passphrase is never stored.
 
 ## Model
 
