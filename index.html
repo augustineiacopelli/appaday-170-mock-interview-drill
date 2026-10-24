@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="apple-touch-icon" href="https://augustineiacopelli.github.io/appaday/icons/170.png">
+<meta name="apple-mobile-web-app-title" content="Mock Drill">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="manifest" href="https://augustineiacopelli.github.io/appaday/manifests/170.webmanifest">
+<script src="https://augustineiacopelli.github.io/appaday/save.js" defer></script>
+<title>Mock Interview Drill | AppADay 170</title>
+<meta name="description" content="Paste a job description and Claude drafts likely behavioral and technical interview questions, each with a practice timer, notes, and a practiced toggle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0D1416;
+  --surface:#152024;
+  --surface2:#1B292E;
+  --line:#28393F;
+  --text:#E8F1F2;
+  --muted:#9CB2B7;
+  --accent:#1F7A8C;
+  --accent-hi:#4DB8CC;
+  --accent-soft:rgba(31,122,140,.18);
+  --tech:#E3A857;
+  --tech-soft:rgba(227,168,87,.14);
+  --over:#EF8466;
+  --over-soft:rgba(239,132,102,.16);
+  --ok:#5CC48F;
+  --radius:14px;
+  --head:'Outfit',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100dvh;background:radial-gradient(120% 60% at 50% -10%,rgba(31,122,140,.28),transparent 60%),var(--bg);color:var(--text);font-family:var(--body);font-size:1rem;line-height:1.5;display:flex;flex-direction:column}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent-hi);outline-offset:2px}
+.wrap{width:100%;max-width:780px;margin:0 auto;padding:0 16px}
+a{color:var(--accent-hi)}
+
+/* header */
+.hdr{display:flex;align-items:center;gap:12px;padding:14px 0 10px}
+.num{flex:none;font-family:var(--mono);font-weight:600;font-size:.85rem;background:var(--accent);color:#fff;border-radius:10px;padding:8px 10px;letter-spacing:.04em}
+.ttl{flex:1;min-width:0}
+.ttl h1{margin:0;font-family:var(--head);font-weight:700;font-size:clamp(1.2rem,4.6vw,1.6rem);line-height:1.15}
+.ttl a{font-size:.85rem;color:var(--muted);text-decoration:none}
+.ttl a:hover{color:var(--accent-hi);text-decoration:underline}
+.iconbtn{flex:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.iconbtn:hover{border-color:var(--accent)}
+.iconbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+main{flex:1;padding-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.lead{color:var(--muted);margin:2px 0 14px;font-size:.95rem}
+
+/* input */
+.jd label{display:block;font-family:var(--head);font-weight:600;font-size:1.05rem;margin-bottom:8px}
+textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;resize:vertical;line-height:1.45}
+textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+#jd{min-height:170px}
+.jd-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-top:10px}
+.count{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.count.warn{color:var(--over)}
+.btn{min-height:44px;padding:0 16px;border-radius:11px;border:1px solid var(--line);background:var(--surface2);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover:not(:disabled){border-color:var(--accent-hi)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover:not(:disabled){background:#238DA1}
+.btn.danger{color:var(--over)}
+.btn.danger.solid{background:#B6492E;border-color:#B6492E;color:#fff}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:sp .8s linear infinite;display:none}
+.busy .spin{display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.status{margin:10px 0 0;font-size:.9rem;color:var(--muted);min-height:1.35em}
+.status.err{color:var(--over)}
+
+/* progress */
+.progress{margin-top:16px;display:none}
+.progress.show{display:block}
+.prow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.prow strong{font-family:var(--head);font-size:1.05rem}
+.prow span{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.track{height:10px;border-radius:99px;background:var(--surface2);margin-top:10px;overflow:hidden}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-hi));border-radius:99px;transition:width .35s ease}
+.done-msg{margin:10px 0 0;color:var(--ok);font-weight:600;display:none}
+.progress.complete .done-msg{display:block}
+.progress.complete .fill{background:linear-gradient(90deg,#3E9E71,var(--ok))}
+
+/* sections */
+.section{margin-top:22px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 4px}
+.sec-h h2{margin:0;font-family:var(--head);font-size:1.25rem}
+.sec-h span{font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.sec-note{margin:0 2px 10px;color:var(--muted);font-size:.88rem}
+.list{display:grid;gap:12px}
+.empty{margin-top:22px;text-align:center;color:var(--muted);padding:28px 16px;border:1px dashed var(--line);border-radius:var(--radius)}
+.empty strong{display:block;color:var(--text);font-family:var(--head);font-size:1.1rem;margin-bottom:4px}
+
+/* question card */
+.q{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--radius);padding:14px 14px 12px}
+.q.tech{border-left-color:var(--tech)}
+.q.practiced{background:linear-gradient(0deg,rgba(92,196,143,.06),rgba(92,196,143,.06)),var(--surface)}
+.qtop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.chip{font-family:var(--mono);font-size:.75rem;font-weight:600;padding:3px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-hi)}
+.q.tech .chip{background:var(--tech-soft);color:var(--tech)}
+.len{font-size:.8rem;color:var(--muted)}
+.qtext{margin:0;font-size:1.05rem;font-weight:500;line-height:1.45}
+.listen{margin:6px 0 0;font-size:.86rem;color:var(--muted)}
+.timer{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.clock{font-family:var(--mono);font-weight:600;font-size:1.25rem;min-width:7.6ch;letter-spacing:.02em}
+.clock small{font-size:.8rem;color:var(--muted);font-weight:500}
+.tbar{flex:1 1 120px;height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;min-width:90px}
+.tfill{height:100%;width:0;background:var(--accent-hi);transition:width .25s linear}
+.q.tech .tfill{background:var(--tech)}
+.tbtns{display:flex;gap:8px}
+.tbtns .btn{min-width:44px;padding:0 12px}
+.q.over .clock{color:var(--over)}
+.q.over .tfill{background:var(--over)}
+.q.over .timer{background:var(--over-soft);border-radius:10px;padding:4px 6px;margin-left:-6px;margin-right:-6px}
+.running .clock{color:var(--accent-hi)}
+.q.tech.running .clock{color:var(--tech)}
+.q.over.running .clock{color:var(--over)}
+.notes{margin-top:10px}
+.notes textarea{min-height:76px;font-size:.95rem}
+.qfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.saved{font-size:.8rem;color:var(--muted);opacity:0;transition:opacity .2s}
+.saved.on{opacity:1}
+.pbtn{min-height:44px;padding:0 14px;border-radius:11px;border:1px solid var(--line);background:transparent;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.pbtn .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center}
+.pbtn .box svg{width:14px;height:14px;stroke:#0D1416;stroke-width:3;fill:none;opacity:0}
+.pbtn[aria-pressed="true"]{border-color:var(--ok);color:var(--ok)}
+.pbtn[aria-pressed="true"] .box{background:var(--ok);border-color:var(--ok)}
+.pbtn[aria-pressed="true"] .box svg{opacity:1}
+
+/* export */
+.export{margin-top:22px;display:none;gap:10px;flex-wrap:wrap}
+.export.show{display:flex}
+.export .btn{flex:1 1 140px}
+
+footer{border-top:1px solid var(--line);padding:16px 0 calc(16px + env(safe-area-inset-bottom));text-align:center;font-size:.85rem;color:var(--muted)}
+footer a{color:var(--muted)}
+footer a:hover{color:var(--accent-hi)}
+
+/* modals */
+.scrim{position:fixed;inset:0;background:rgba(4,9,10,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.scrim.open{display:flex}
+.modal{width:100%;max-width:440px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;max-height:calc(100dvh - 32px);overflow:auto}
+.modal h2{margin:0 0 6px;font-family:var(--head);font-size:1.25rem}
+.modal p{margin:0 0 12px;color:var(--muted);font-size:.93rem}
+.field{display:flex;gap:8px}
+.field input{flex:1;min-width:0;min-height:44px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:0 12px;font-family:var(--mono);font-size:.9rem}
+.field input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.mrow{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.mnote{font-size:.82rem;color:var(--muted);margin-top:12px}
+.keystate{font-size:.85rem;margin-top:8px;color:var(--muted)}
+.keystate.ok{color:var(--ok)}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#E8F1F2;color:#0D1416;font-weight:600;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;max-width:calc(100vw - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (min-width:640px){
+  .card{padding:20px}
+  .q{padding:16px 18px 14px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hdr">
+    <div class="num" aria-hidden="true">170</div>
+    <div class="ttl">
+      <h1>Mock Interview Drill</h1>
+      <a href="https://augustineiacopelli.github.io/appaday/">AppADay portfolio</a>
+    </div>
+    <button class="iconbtn" id="gearBtn" type="button" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  </header>
+</div>
+
+<main class="wrap">
+  <p class="lead">Paste a job posting. Claude drafts the questions this employer is likely to ask, then you rehearse each one out loud against its own timer.</p>
+
+  <section class="card jd" aria-labelledby="jdLabel">
+    <label id="jdLabel" for="jd">Job description</label>
+    <textarea id="jd" maxlength="12000" placeholder="Paste the full posting here: role summary, responsibilities, required and preferred qualifications."></textarea>
+    <div class="jd-foot">
+      <span class="count" id="jdCount" aria-live="polite">0 / 12,000</span>
+      <button class="btn primary" id="genBtn" type="button"><span class="spin" aria-hidden="true"></span><span id="genLabel">Generate Questions</span></button>
+    </div>
+    <p class="status" id="genStatus" role="status"></p>
+  </section>
+
+  <section class="card progress" id="progress" aria-label="Practice progress">
+    <div class="prow"><strong id="progText">0 of 0 practiced</strong><span id="progPct">0%</span></div>
+    <div class="track" role="progressbar" id="progBar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Questions practiced"><div class="fill" id="progFill"></div></div>
+    <p class="done-msg" id="doneMsg">Every question practiced. Walk in ready.</p>
+  </section>
+
+  <div class="empty" id="emptyState"><strong>No questions yet</strong>Add your Claude API key with the gear, paste a posting, and generate a set of 8 to 10 questions.</div>
+
+  <section class="section" id="behSec" hidden aria-labelledby="behH">
+    <div class="sec-h"><h2 id="behH">Behavioral</h2><span id="behCount">0 of 0</span></div>
+    <p class="sec-note">Answer with STAR: Situation, Task, Action, Result. Spend most of your time on the Action.</p>
+    <div class="list" id="behList"></div>
+  </section>
+
+  <section class="section" id="techSec" hidden aria-labelledby="techH">
+    <div class="sec-h"><h2 id="techH">Technical</h2><span id="techCount">0 of 0</span></div>
+    <p class="sec-note">Name the tool or method, walk through how you would apply it, and close with a concrete result.</p>
+    <div class="list" id="techList"></div>
+  </section>
+
+  <div class="export" id="exportRow">
+    <button class="btn" id="copyBtn" type="button">Copy Markdown</button>
+    <button class="btn" id="dlBtn" type="button">Download .md</button>
+    <button class="btn danger" id="resetBtn" type="button">Reset</button>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">AppADay 170 &middot; <a href="https://augustineiacopelli.github.io/appaday/">Back to the AppADay portfolio</a></div>
+</footer>
+
+<div class="scrim" id="settingsScrim">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setTitle" id="settingsModal">
+    <h2 id="setTitle">Settings</h2>
+    <p>Mock Interview Drill calls Claude with your own Anthropic API key. Get one at <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
+    <label class="sr" for="keyInput">Anthropic API key</label>
+    <div class="field">
+      <input id="keyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+      <button class="btn" id="showKeyBtn" type="button" aria-pressed="false">Show</button>
+    </div>
+    <div class="keystate" id="keyState">No key saved.</div>
+    <p class="mnote">The key is stored only in this browser and is sent only to api.anthropic.com. The model is read from the AppADay config file.</p>
+    <div class="mrow">
+      <button class="btn danger" id="clearKeyBtn" type="button">Clear key</button>
+      <button class="btn" id="closeSetBtn" type="button">Close</button>
+      <button class="btn primary" id="saveKeyBtn" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="confirmScrim">
+  <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfBody" id="confirmModal">
+    <h2 id="cfTitle">Are you sure?</h2>
+    <p id="cfBody"></p>
+    <div class="mrow">
+      <button class="btn" id="cfCancel" type="button">Cancel</button>
+      <button class="btn primary" id="cfOk" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+'use strict';
+
+var CONFIG_URL = 'https://augustineiacopelli.github.io/appaday/config.json';
+var STATE_KEY = 'appaday-170-state';
+var SETTINGS_KEY = 'appaday-170-settings';
+var JD_MIN = 80;
+var JD_MAX = 12000;
+var MIN_VALID = 6;
+var MAX_Q = 10;
+
+var $ = function (id) { return document.getElementById(id); };
+
+/* ---------- model ---------- */
+var modelCache = {};
+async function getModel(tier) {
+  tier = tier || 'sonnet';
+  if (modelCache[tier]) return modelCache[tier];
+  var m = 'claude-sonnet-5-5';
+  try {
+    var r = await fetch(CONFIG_URL, { cache: 'no-cache' });
+    var c = await r.json();
+    if (c && c.models && typeof c.models[tier] === 'string' && c.models[tier]) m = c.models[tier];
+  } catch (e) { m = 'claude-sonnet-5-5'; }
+  modelCache[tier] = m;
+  return m;
+}
+
+/* ---------- Claude call with thinking fallback ---------- */
+var THINKING_OPTIONS = [{ type: 'between_tools' }, { type: 'disabled' }, null];
+var thinkingFor = {};
+async function callClaude(model, prompt, apiKey) {
+  var start = thinkingFor[model] != null ? thinkingFor[model] : 0;
+  var lastErr = null;
+  for (var i = start; i < THINKING_OPTIONS.length; i++) {
+    var body = { model: model, max_tokens: 2500, messages: [{ role: 'user', content: prompt }] };
+    if (THINKING_OPTIONS[i]) body.thinking = THINKING_OPTIONS[i];
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify(body)
+    });
+    var j = await r.json().catch(function () { return {}; });
+    if (r.ok) { thinkingFor[model] = i; return j; }
+    var msg = (j && j.error && j.error.message) || ('HTTP ' + r.status);
+    lastErr = new Error(msg);
+    lastErr.status = r.status;
+    if (!(r.status === 400 && /thinking/i.test(msg))) throw lastErr;
+  }
+  throw lastErr;
+}
+function replyText(j) {
+  return ((j && j.content) || []).filter(function (b) { return b && b.type === 'text'; })
+    .map(function (b) { return b.text; }).join('\n').trim();
+}
+
+/* ---------- prompt, parse, validate ---------- */
+function buildPrompt(jd, retry) {
+  var p = 'You are an experienced hiring manager preparing a candidate for a mock interview. ' +
+    'Read the job description below and write between 8 and 10 interview questions this employer is likely to ask. ' +
+    'Include at least 4 behavioral questions (past experience, best answered with the STAR method) and at least 3 technical questions ' +
+    '(role specific knowledge, skills, tools, methods, or scenarios named or clearly implied by the posting). ' +
+    'Make every question specific to this posting rather than generic. ' +
+    'For each question give a suggested spoken answer length in seconds between 60 and 300, and a short note of under 20 words on what the interviewer is listening for. ' +
+    'Reply with JSON only, no prose and no code fences, in exactly this shape: ' +
+    '{"questions":[{"type":"behavioral","question":"...","listen_for":"...","seconds":120},{"type":"technical","question":"...","listen_for":"...","seconds":90}]}. ' +
+    'The type must be either behavioral or technical. Use plain ASCII punctuation.';
+  if (retry) p += ' Your previous reply could not be used. Return only valid JSON with 8 to 10 complete questions.';
+  return p + '\n\nJob description:\n<<<\n' + jd + '\n>>>';
+}
+function clampSeconds(v, type) {
+  var n = Number(v);
+  if (!isFinite(n)) n = type === 'technical' ? 90 : 120;
+  n = Math.round(n / 15) * 15;
+  return Math.max(60, Math.min(300, n));
+}
+function clean(s, max) {
+  return String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, max);
+}
+function validateQuestions(arr) {
+  var out = [], seen = {};
+  if (!Array.isArray(arr)) return out;
+  for (var i = 0; i < arr.length && out.length < MAX_Q; i++) {
+    var q = arr[i];
+    if (!q || typeof q !== 'object') continue;
+    var t = String(q.type || '').toLowerCase();
+    var type = t.indexOf('behav') >= 0 ? 'behavioral' : (t.indexOf('tech') >= 0 ? 'technical' : '');
+    if (!type) continue;
+    var text = clean(q.question, 500);
+    if (text.length < 10) continue;
+    var key = text.toLowerCase();
+    if (seen[key]) continue;
+    seen[key] = 1;
+    out.push({
+      id: 'q' + Date.now().toString(36) + i + Math.random().toString(36).slice(2, 6),
+      type: type,
+      question: text,
+      listen: clean(q.listen_for || q.listenFor || q.why || '', 200),
+      seconds: clampSeconds(q.seconds, type),
+      notes: '',
+      practiced: false
+    });
+  }
+  return out;
+}
+function parseQuestions(text) {
+  var t = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+  var a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a >= 0 && b > a) {
+    try {
+      var obj = JSON.parse(t.slice(a, b + 1));
+      if (Array.isArray(obj.questions)) return validateQuestions(obj.questions);
+    } catch (e) { /* try array form */ }
+  }
+  var c = t.indexOf('['), d = t.lastIndexOf(']');
+  if (c >= 0 && d > c) {
+    try { return validateQuestions(JSON.parse(t.slice(c, d + 1))); } catch (e2) { /* unusable */ }
+  }
+  return [];
+}
+
+/* ---------- storage ---------- */
+var state = { jd: '', generatedAt: '', questions: [] };
+var settings = { apiKey: '' };
+function loadState() {
+  try {
+    var s = JSON.parse(localStorage.getItem(STATE_KEY) || 'null');
+    if (s && typeof s === 'object') {
+      state.jd = typeof s.jd === 'string' ? s.jd : '';
+      state.generatedAt = typeof s.generatedAt === 'string' ? s.generatedAt : '';
+      state.questions = Array.isArray(s.questions) ? s.questions.filter(function (q) {
+        return q && typeof q.question === 'string' && (q.type === 'behavioral' || q.type === 'technical');
+      }).map(function (q) {
+        return { id: String(q.id || ('q' + Math.random().toString(36).slice(2))), type: q.type, question: q.question,
+          listen: typeof q.listen === 'string' ? q.listen : '', seconds: clampSeconds(q.seconds, q.type),
+          notes: typeof q.notes === 'string' ? q.notes : '', practiced: !!q.practiced };
+      }) : [];
+    }
+  } catch (e) { /* storage unavailable */ }
+  try {
+    var st = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+    if (st && typeof st.apiKey === 'string') settings.apiKey = st.apiKey;
+  } catch (e2) { /* storage unavailable */ }
+}
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+}
+function saveSettings() {
+  try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ }
+}
+
+/* ---------- toast ---------- */
+var toastTimer = null;
+function toast(msg) {
+  var t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.classList.remove('on'); }, 2600);
+}
+
+/* ---------- modals with focus trap ---------- */
+var openStack = [];
+function focusables(root) {
+  return Array.prototype.slice.call(root.querySelectorAll('button:not([disabled]),input:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])'));
+}
+function openModal(scrim, first, onEscape) {
+  openStack.push({ scrim: scrim, prev: document.activeElement, onEscape: onEscape });
+  scrim.classList.add('open');
+  setTimeout(function () { (first || focusables(scrim)[0]).focus(); }, 0);
+}
+function closeModal(scrim) {
+  scrim.classList.remove('open');
+  for (var i = openStack.length - 1; i >= 0; i--) {
+    if (openStack[i].scrim === scrim) {
+      var prev = openStack[i].prev;
+      openStack.splice(i, 1);
+      if (prev && prev.focus) prev.focus();
+      break;
+    }
+  }
+}
+document.addEventListener('keydown', function (e) {
+  if (!openStack.length) return;
+  var top = openStack[openStack.length - 1];
+  if (e.key === 'Escape') { e.preventDefault(); top.onEscape(); return; }
+  if (e.key === 'Tab') {
+    var f = focusables(top.scrim);
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    else if (!top.scrim.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+  }
+});
+
+var confirmResolve = null;
+function askConfirm(opts) {
+  $('cfTitle').textContent = opts.title;
+  $('cfBody').textContent = opts.body;
+  $('cfOk').textContent = opts.ok || 'Continue';
+  $('cfOk').className = 'btn ' + (opts.danger ? 'danger solid' : 'primary');
+  return new Promise(function (resolve) {
+    confirmResolve = resolve;
+    openModal($('confirmScrim'), $('cfCancel'), function () { finishConfirm(false); });
+  });
+}
+function finishConfirm(v) {
+  closeModal($('confirmScrim'));
+  var r = confirmResolve; confirmResolve = null;
+  if (r) r(v);
+}
+$('cfOk').addEventListener('click', function () { finishConfirm(true); });
+$('cfCancel').addEventListener('click', function () { finishConfirm(false); });
+$('confirmScrim').addEventListener('click', function (e) { if (e.target === $('confirmScrim')) finishConfirm(false); });
+
+/* ---------- settings ---------- */
+function refreshKeyState() {
+  var ks = $('keyState');
+  if (settings.apiKey) { ks.textContent = 'Key saved, ending in ' + settings.apiKey.slice(-4) + '.'; ks.className = 'keystate ok'; }
+  else { ks.textContent = 'No key saved.'; ks.className = 'keystate'; }
+}
+function openSettings() {
+  $('keyInput').value = settings.apiKey;
+  $('keyInput').type = 'password';
+  $('showKeyBtn').textContent = 'Show';
+  $('showKeyBtn').setAttribute('aria-pressed', 'false');
+  refreshKeyState();
+  openModal($('settingsScrim'), $('keyInput'), closeSettings);
+}
+function closeSettings() { closeModal($('settingsScrim')); }
+$('gearBtn').addEventListener('click', openSettings);
+$('closeSetBtn').addEventListener('click', closeSettings);
+$('settingsScrim').addEventListener('click', function (e) { if (e.target === $('settingsScrim')) closeSettings(); });
+$('showKeyBtn').addEventListener('click', function () {
+  var inp = $('keyInput'), show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  this.textContent = show ? 'Hide' : 'Show';
+  this.setAttribute('aria-pressed', show ? 'true' : 'false');
+});
+$('saveKeyBtn').addEventListener('click', function () {
+  var v = $('keyInput').value.trim();
+  if (!v) { toast('Paste a key first, or use Clear key.'); return; }
+  settings.apiKey = v; saveSettings(); refreshKeyState();
+  closeSettings(); toast('API key saved in this browser.');
+});
+$('clearKeyBtn').addEventListener('click', function () {
+  settings.apiKey = ''; saveSettings();
+  $('keyInput').value = ''; refreshKeyState(); toast('API key cleared.');
+});
+
+/* ---------- job description input ---------- */
+var jdTimer = null;
+function fmtNum(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function refreshJd() {
+  var len = $('jd').value.length;
+  var c = $('jdCount');
+  c.textContent = fmtNum(len) + ' / ' + fmtNum(JD_MAX) + (len > 0 && $('jd').value.trim().length < JD_MIN ? '  (need ' + JD_MIN + '+)' : '');
+  c.classList.toggle('warn', len > 0 && $('jd').value.trim().length < JD_MIN);
+  if (!generating) $('genBtn').disabled = $('jd').value.trim().length < JD_MIN;
+}
+$('jd').addEventListener('input', function () {
+  refreshJd();
+  clearTimeout(jdTimer);
+  jdTimer = setTimeout(function () { state.jd = $('jd').value; saveState(); }, 400);
+});
+
+/* ---------- generate ---------- */
+var generating = false;
+function setStatus(msg, err) {
+  var s = $('genStatus');
+  s.textContent = msg || '';
+  s.classList.toggle('err', !!err);
+}
+function setBusy(on) {
+  generating = on;
+  $('genBtn').classList.toggle('busy', on);
+  $('genBtn').disabled = on || $('jd').value.trim().length < JD_MIN;
+  $('genLabel').textContent = on ? 'Drafting questions...' : (state.questions.length ? 'Regenerate Questions' : 'Generate Questions');
+}
+async function generate() {
+  if (generating) return;
+  var jd = $('jd').value.trim();
+  if (jd.length < JD_MIN) { setStatus('Paste at least ' + JD_MIN + ' characters of the posting.', true); return; }
+  if (!settings.apiKey) { setStatus('Add your Anthropic API key in Settings first.', true); openSettings(); return; }
+  if (state.questions.length) {
+    var ok = await askConfirm({ title: 'Replace these questions?', body: 'Generating again replaces your ' + state.questions.length + ' questions along with their notes and practice progress.', ok: 'Replace', danger: true });
+    if (!ok) return;
+  }
+  setBusy(true);
+  setStatus('Reading the posting and drafting questions. This usually takes 10 to 30 seconds.');
+  try {
+    var model = await getModel('sonnet');
+    var best = [];
+    for (var attempt = 0; attempt < 2; attempt++) {
+      var j = await callClaude(model, buildPrompt(jd, attempt > 0), settings.apiKey);
+      var qs = parseQuestions(replyText(j));
+      if (qs.length > best.length) best = qs;
+      if (best.length >= MIN_VALID) break;
+    }
+    if (!best.length) throw new Error('Claude did not return usable questions. Try again.');
+    stopAllTimers();
+    timers = {};
+    state.jd = jd;
+    state.generatedAt = new Date().toISOString();
+    best.sort(function (a, b) { return (a.type === b.type) ? 0 : (a.type === 'behavioral' ? -1 : 1); });
+    state.questions = best;
+    saveState();
+    render();
+    setStatus(best.length + ' questions ready.' + (best.length < MIN_VALID ? ' Fewer than usual, so consider regenerating.' : ''));
+    toast(best.length + ' questions drafted.');
+    var firstCard = document.querySelector('.q');
+    if (firstCard && firstCard.scrollIntoView) firstCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    var m = e && e.message ? e.message : String(e);
+    if (e && (e.status === 401 || e.status === 403)) m = 'The API key was rejected. Check it in Settings.';
+    else if (e && e.status === 429) m = 'Rate limited by the API. Wait a moment and try again.';
+    else if (e instanceof TypeError) m = 'Could not reach the API. Check your connection.';
+    setStatus(m, true);
+  } finally {
+    setBusy(false);
+  }
+}
+$('genBtn').addEventListener('click', generate);
+
+/* ---------- timers ---------- */
+var timers = {};
+var cardRefs = {};
+var loopId = null;
+function fmtTime(ms) {
+  var s = Math.floor(ms / 1000);
+  return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
+}
+function timerOf(id) {
+  if (!timers[id]) timers[id] = { elapsed: 0, startedAt: null, buzzed: false };
+  return timers[id];
+}
+function elapsedOf(t) { return t.elapsed + (t.startedAt ? Date.now() - t.startedAt : 0); }
+function paintTimer(id) {
+  var ref = cardRefs[id], q = findQ(id);
+  if (!ref || !q) return;
+  var t = timerOf(id), ms = elapsedOf(t), limit = q.seconds * 1000;
+  ref.clockNow.textContent = fmtTime(ms);
+  ref.fill.style.width = Math.min(100, ms / limit * 100) + '%';
+  var over = ms >= limit;
+  ref.card.classList.toggle('over', over);
+  ref.card.classList.toggle('running', !!t.startedAt);
+  ref.startBtn.textContent = t.startedAt ? 'Pause' : (ms > 0 ? 'Resume' : 'Start');
+  ref.startBtn.setAttribute('aria-label', (t.startedAt ? 'Pause' : (ms > 0 ? 'Resume' : 'Start')) + ' timer for question ' + ref.num);
+  if (over && t.startedAt && !t.buzzed) {
+    t.buzzed = true;
+    try { if (navigator.vibrate) navigator.vibrate(200); } catch (e) { /* ignore */ }
+    ref.live.textContent = 'Time is up for question ' + ref.num + '.';
+  }
+}
+function tick() {
+  var any = false;
+  Object.keys(timers).forEach(function (id) { if (timers[id].startedAt) { any = true; paintTimer(id); } });
+  if (!any) { clearInterval(loopId); loopId = null; }
+}
+function ensureLoop() { if (!loopId) loopId = setInterval(tick, 250); }
+function stopAllTimers() {
+  Object.keys(timers).forEach(function (id) {
+    var t = timers[id];
+    if (t.startedAt) { t.elapsed += Date.now() - t.startedAt; t.startedAt = null; paintTimer(id); }
+  });
+}
+function toggleTimer(id) {
+  var t = timerOf(id);
+  if (t.startedAt) { t.elapsed += Date.now() - t.startedAt; t.startedAt = null; }
+  else { stopAllTimers(); t.startedAt = Date.now(); ensureLoop(); }
+  paintTimer(id);
+}
+function resetTimer(id) {
+  timers[id] = { elapsed: 0, startedAt: null, buzzed: false };
+  paintTimer(id);
+  if (cardRefs[id]) cardRefs[id].live.textContent = '';
+}
+
+/* ---------- cards ---------- */
+function findQ(id) {
+  for (var i = 0; i < state.questions.length; i++) if (state.questions[i].id === id) return state.questions[i];
+  return null;
+}
+function el(tag, cls, text) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function lenLabel(sec) {
+  if (sec % 60 === 0) return 'Aim for ' + (sec / 60) + ' min';
+  return 'Aim for ' + Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2);
+}
+var CHECK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function buildCard(q, num) {
+  var card = el('article', 'q' + (q.type === 'technical' ? ' tech' : '') + (q.practiced ? ' practiced' : ''));
+  card.setAttribute('data-id', q.id);
+  card.setAttribute('aria-label', 'Question ' + num);
+
+  var top = el('div', 'qtop');
+  top.appendChild(el('span', 'chip', 'Q' + num + ' ' + (q.type === 'technical' ? 'Technical' : 'Behavioral')));
+  top.appendChild(el('span', 'len', lenLabel(q.seconds)));
+  card.appendChild(top);
+  card.appendChild(el('p', 'qtext', q.question));
+  if (q.listen) card.appendChild(el('p', 'listen', 'Listening for: ' + q.listen));
+
+  var timer = el('div', 'timer');
+  var clock = el('div', 'clock');
+  var now = el('span', null, '0:00');
+  clock.appendChild(now);
+  clock.appendChild(el('small', null, ' / ' + fmtTime(q.seconds * 1000)));
+  timer.appendChild(clock);
+  var bar = el('div', 'tbar'); var fill = el('div', 'tfill'); bar.appendChild(fill); timer.appendChild(bar);
+  var tb = el('div', 'tbtns');
+  var startBtn = el('button', 'btn primary', 'Start'); startBtn.type = 'button';
+  var resetBtn = el('button', 'btn', 'Reset'); resetBtn.type = 'button';
+  resetBtn.setAttribute('aria-label', 'Reset timer for question ' + num);
+  startBtn.addEventListener('click', function () { toggleTimer(q.id); });
+  resetBtn.addEventListener('click', function () { resetTimer(q.id); });
+  tb.appendChild(startBtn); tb.appendChild(resetBtn); timer.appendChild(tb);
+  card.appendChild(timer);
+  var live = el('span', 'sr'); live.setAttribute('aria-live', 'polite'); card.appendChild(live);
+
+  var nw = el('div', 'notes');
+  var lab = el('label', 'sr', 'Notes for question ' + num);
+  var ta = el('textarea');
+  ta.id = 'notes-' + q.id; lab.htmlFor = ta.id;
+  ta.placeholder = q.type === 'technical' ? 'Tools, steps, and a result you can cite' : 'Situation, task, action, result, and the number that proves it';
+  ta.maxLength = 4000;
+  ta.value = q.notes || '';
+  nw.appendChild(lab); nw.appendChild(ta); card.appendChild(nw);
+
+  var foot = el('div', 'qfoot');
+  var saved = el('span', 'saved', 'Saved');
+  var pbtn = el('button', 'pbtn'); pbtn.type = 'button';
+  var box = el('span', 'box'); box.innerHTML = CHECK_SVG;
+  var plab = el('span', null, q.practiced ? 'Practiced' : 'Mark practiced');
+  pbtn.appendChild(box); pbtn.appendChild(plab);
+  pbtn.setAttribute('aria-pressed', q.practiced ? 'true' : 'false');
+  pbtn.setAttribute('aria-label', 'Practiced, question ' + num);
+  pbtn.addEventListener('click', function () { togglePracticed(q.id); });
+  foot.appendChild(saved); foot.appendChild(pbtn);
+  card.appendChild(foot);
+
+  var nt = null, st = null;
+  ta.addEventListener('input', function () {
+    clearTimeout(nt);
+    nt = setTimeout(function () {
+      var cur = findQ(q.id); if (!cur) return;
+      cur.notes = ta.value; saveState();
+      saved.classList.add('on'); clearTimeout(st);
+      st = setTimeout(function () { saved.classList.remove('on'); }, 1200);
+    }, 400);
+  });
+  pendingFlush.push(function () { clearTimeout(nt); var cur = findQ(q.id); if (cur && cur.notes !== ta.value) { cur.notes = ta.value; return true; } return false; });
+
+  cardRefs[q.id] = { card: card, clockNow: now, fill: fill, startBtn: startBtn, pbtn: pbtn, plab: plab, live: live, num: num };
+  return card;
+}
+var pendingFlush = [];
+function flushNotes() {
+  var changed = false;
+  pendingFlush.forEach(function (f) { if (f()) changed = true; });
+  if (changed) saveState();
+}
+window.addEventListener('pagehide', flushNotes);
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flushNotes(); });
+
+function clearList(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+function render() {
+  cardRefs = {}; pendingFlush = [];
+  var beh = $('behList'), tech = $('techList');
+  clearList(beh); clearList(tech);
+  var num = 0;
+  state.questions.filter(function (q) { return q.type === 'behavioral'; }).forEach(function (q) { beh.appendChild(buildCard(q, ++num)); });
+  state.questions.filter(function (q) { return q.type === 'technical'; }).forEach(function (q) { tech.appendChild(buildCard(q, ++num)); });
+  Object.keys(cardRefs).forEach(paintTimer);
+  var has = state.questions.length > 0;
+  $('emptyState').hidden = has;
+  $('progress').classList.toggle('show', has);
+  $('exportRow').classList.toggle('show', has);
+  $('behSec').hidden = !beh.firstChild;
+  $('techSec').hidden = !tech.firstChild;
+  $('genLabel').textContent = has ? 'Regenerate Questions' : 'Generate Questions';
+  refreshProgress(false);
+}
+
+/* ---------- practiced and progress ---------- */
+function counts(type) {
+  var list = state.questions.filter(function (q) { return !type || q.type === type; });
+  return { done: list.filter(function (q) { return q.practiced; }).length, total: list.length };
+}
+function refreshProgress(announce) {
+  var all = counts(), b = counts('behavioral'), t = counts('technical');
+  var pct = all.total ? Math.round(all.done / all.total * 100) : 0;
+  $('progText').textContent = all.done + ' of ' + all.total + ' practiced';
+  $('progPct').textContent = pct + '%';
+  $('progFill').style.width = pct + '%';
+  $('progBar').setAttribute('aria-valuenow', String(pct));
+  $('behCount').textContent = b.done + ' of ' + b.total + ' practiced';
+  $('techCount').textContent = t.done + ' of ' + t.total + ' practiced';
+  var complete = all.total > 0 && all.done === all.total;
+  $('progress').classList.toggle('complete', complete);
+  if (announce && complete) toast('All ' + all.total + ' questions practiced. Walk in ready.');
+}
+function togglePracticed(id) {
+  var q = findQ(id); if (!q) return;
+  q.practiced = !q.practiced;
+  saveState();
+  var ref = cardRefs[id];
+  if (ref) {
+    ref.card.classList.toggle('practiced', q.practiced);
+    ref.pbtn.setAttribute('aria-pressed', q.practiced ? 'true' : 'false');
+    ref.plab.textContent = q.practiced ? 'Practiced' : 'Mark practiced';
+  }
+  if (q.practiced) {
+    var t = timers[id];
+    if (t && t.startedAt) { t.elapsed += Date.now() - t.startedAt; t.startedAt = null; paintTimer(id); }
+  }
+  refreshProgress(q.practiced);
+}
+
+/* ---------- export ---------- */
+function localDate(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+function buildMarkdown() {
+  flushNotes();
+  var all = counts();
+  var lines = ['# Mock Interview Drill', '', 'Prepared ' + localDate() + '. ' + all.done + ' of ' + all.total + ' questions practiced.', ''];
+  var jd = state.jd.trim();
+  if (jd) {
+    var ex = jd.length > 600 ? jd.slice(0, 600).replace(/\s+\S*$/, '') + ' ...' : jd;
+    lines.push('## Job posting (excerpt)', '');
+    ex.split(/\r?\n/).forEach(function (l) { lines.push('> ' + l); });
+    lines.push('');
+  }
+  var num = 0;
+  [['behavioral', 'Behavioral questions'], ['technical', 'Technical questions']].forEach(function (pair) {
+    var list = state.questions.filter(function (q) { return q.type === pair[0]; });
+    if (!list.length) return;
+    lines.push('## ' + pair[1], '');
+    list.forEach(function (q) {
+      num++;
+      lines.push('### Q' + num + '. ' + q.question, '');
+      lines.push('- [' + (q.practiced ? 'x' : ' ') + '] Practiced');
+      lines.push('- Suggested length: ' + fmtTime(q.seconds * 1000));
+      if (q.listen) lines.push('- Listening for: ' + q.listen);
+      lines.push('');
+      var n = (q.notes || '').trim();
+      lines.push(n ? n : '_No notes yet._', '');
+    });
+  });
+  lines.push('---', 'Made with Mock Interview Drill, AppADay 170: https://augustineiacopelli.github.io/appaday-170-mock-interview-drill/');
+  return lines.join('\n') + '\n';
+}
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.setAttribute('readonly', '');
+  ta.style.position = 'absolute'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
+$('copyBtn').addEventListener('click', async function () {
+  var md = buildMarkdown(), ok = false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(md); ok = true; }
+  } catch (e) { ok = false; }
+  if (!ok) ok = fallbackCopy(md);
+  toast(ok ? 'Copied as Markdown.' : 'Copy failed. Use Download instead.');
+});
+$('dlBtn').addEventListener('click', function () {
+  var blob = new Blob([buildMarkdown()], { type: 'text/markdown' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'mock-interview-drill-' + localDate() + '.md';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  toast('Markdown downloaded.');
+});
+$('resetBtn').addEventListener('click', async function () {
+  var ok = await askConfirm({ title: 'Start over?', body: 'This clears the posting, every question, your notes, and practice progress. Your API key stays saved.', ok: 'Reset', danger: true });
+  if (!ok) return;
+  stopAllTimers(); timers = {};
+  state = { jd: '', generatedAt: '', questions: [] };
+  saveState();
+  $('jd').value = '';
+  refreshJd(); setStatus('');
+  render();
+  toast('Cleared. Your API key is still saved.');
+});
+
+/* ---------- init ---------- */
+loadState();
+$('jd').value = state.jd;
+refreshJd();
+render();
+if (!settings.apiKey && !state.questions.length) setStatus('Tip: add your API key with the gear button first.');
+})();
+</script>
+</body>
+</html>
