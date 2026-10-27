@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="manifest" href="https://augustineiacopelli.github.io/appaday/manifests/170.webmanifest">
 <script src="https://augustineiacopelli.github.io/appaday/save.js" defer></script>
+<script src="https://augustineiacopelli.github.io/appaday/models.js"></script>
 <script src="https://augustineiacopelli.github.io/appaday/keys.js" data-app="170" data-legacy-key="appaday-170-settings:apiKey" data-accent="#1F7A8C" defer></script>
 <title>Mock Interview Drill | AppADay 170</title>
 <meta name="description" content="Paste a job description and Claude drafts likely behavioral and technical interview questions, each with a practice timer, notes, and a practiced toggle.">
@@ -253,7 +254,6 @@ footer a:hover{color:var(--accent-hi)}
 (function () {
 'use strict';
 
-var CONFIG_URL = 'https://augustineiacopelli.github.io/appaday/config.json';
 var STATE_KEY = 'appaday-170-state';
 var JD_MIN = 80;
 var JD_MAX = 12000;
@@ -263,18 +263,8 @@ var MAX_Q = 10;
 var $ = function (id) { return document.getElementById(id); };
 
 /* ---------- model ---------- */
-var modelCache = {};
 async function getModel(tier) {
-  tier = tier || 'sonnet';
-  if (modelCache[tier]) return modelCache[tier];
-  var m = 'claude-sonnet-5-5';
-  try {
-    var r = await fetch(CONFIG_URL, { cache: 'no-cache' });
-    var c = await r.json();
-    if (c && c.models && typeof c.models[tier] === 'string' && c.models[tier]) m = c.models[tier];
-  } catch (e) { m = 'claude-sonnet-5-5'; }
-  modelCache[tier] = m;
-  return m;
+  return window.AppModels ? window.AppModels.get(tier || 'sonnet') : '';
 }
 
 /* ---------- Claude call with thinking fallback ---------- */

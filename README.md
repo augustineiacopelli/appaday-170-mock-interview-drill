@@ -24,7 +24,7 @@ Your API key, the posting, and your notes are stored only in this browser's loca
 
 ## Model
 
-The model is not hardcoded. The app reads the sonnet tier from the AppADay central [config.json](https://augustineiacopelli.github.io/appaday/config.json) and falls back to claude-sonnet-5-5 if the file cannot be reached. Thinking is turned off with a per model fallback so the full token budget goes to the questions.
+The model is not hardcoded. The app asks the portal's shared models.js for the sonnet tier, which follows the AppADay central [config.json](https://augustineiacopelli.github.io/appaday/config.json). Thinking is turned off with a per model fallback so the full token budget goes to the questions.
 
 ## Links
 
